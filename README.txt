@@ -1,4 +1,4 @@
-Final Project
+School Final Project
 Game: Retro Blade
 
 By:
