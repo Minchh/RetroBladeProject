@@ -13,6 +13,11 @@ public class GamePanel extends JPanel
 		setPanelSize();
 		this.game = game;
 
+		addKeyListener(game.getInput());
+		addMouseListener(game.getInput());
+		addMouseMotionListener(game.getInput());
+		addMouseWheelListener(game.getInput());
+
 	}
 
 	private void setPanelSize()

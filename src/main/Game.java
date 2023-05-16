@@ -1,5 +1,7 @@
 package main;
 
+import inputs.Input;
+
 import java.awt.Graphics;
 
 public class Game implements Runnable
@@ -10,6 +12,7 @@ public class Game implements Runnable
 	private Thread gameThread;
 	private GameWindow gameWindow;
 	private GamePanel gamePanel;
+	private Input input;
 
 	// Game's properties
 	private final int FPS_CAP = 120;
@@ -39,7 +42,7 @@ public class Game implements Runnable
 
 	private void initClasses()
 	{
-
+		input = new Input();
 	}
 
 	private void startGameLoop()
@@ -51,6 +54,7 @@ public class Game implements Runnable
 	public void update()
 	{
 
+		input.update();
 	}
 
 	public void render(Graphics g)
@@ -116,4 +120,8 @@ public class Game implements Runnable
 		return Game.gameInstance;
 	}
 
+	public Input getInput()
+	{
+		return input;
+	}
 }
