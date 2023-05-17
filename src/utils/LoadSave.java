@@ -1,9 +1,15 @@
 package utils;
 
-import javax.imageio.ImageIO;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+
+import entities.Slime;
+import main.Game;
 
 public class LoadSave
 {
@@ -50,5 +56,42 @@ public class LoadSave
 			}
 		}
 		return img;
+	}
+
+	public static ArrayList<Slime> getSlimes()
+	{
+		BufferedImage img = GetSpriteSheet(LoadSave.WORLD_DATA);
+		ArrayList<Slime> list = new ArrayList<>();
+		for (int y = 0; y < img.getHeight(); y++)
+		{
+			for (int x = 0; x < img.getWidth(); x++)
+			{
+				Color color = new Color(img.getRGB(x, y));
+				int value = color.getGreen();
+				if (value == EnemyType.SLIME.ordinal())
+				{
+					list.add(new Slime(x * Game.TILE_WIDTH, y * Game.TILE_HEIGHT));
+				}
+			}
+		}
+		return list;
+	}
+
+	public static int[][] GetLevelData(String data)
+	{
+		BufferedImage img = GetSpriteSheet(data);
+		int[][] lvlData = new int[img.getHeight()][img.getWidth()];
+
+		for (int y = 0; y < img.getHeight(); y++)
+			for (int x = 0; x < img.getWidth(); x++)
+			{
+				Color color = new Color(img.getRGB(x, y));
+				int value = color.getRed();
+				if (value >= 79)
+					value = 0;
+				lvlData[y][x] = value;
+			}
+
+		return lvlData;
 	}
 }

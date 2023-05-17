@@ -1,5 +1,8 @@
 package main;
 
+import gamestates.GameState;
+import gamestates.Menu;
+import gamestates.Playing;
 import inputs.Input;
 
 import java.awt.Graphics;
@@ -13,6 +16,8 @@ public class Game implements Runnable
 	private GameWindow gameWindow;
 	private GamePanel gamePanel;
 	private Input input;
+	private Playing playing;
+	private Menu menu;
 
 	// Game's properties
 	private final int FPS_CAP = 120;
@@ -43,6 +48,8 @@ public class Game implements Runnable
 	private void initClasses()
 	{
 		input = new Input();
+		menu = new Menu(input);
+		playing = new Playing(input);
 	}
 
 	private void startGameLoop()
@@ -53,13 +60,38 @@ public class Game implements Runnable
 
 	public void update()
 	{
+		switch (GameState.state)
+		{
+			case MENU:
+				menu.update();
+				break;
+			case PLAYING:
+				playing.update();
+				break;
+			case OPTIONS:
+			case QUIT:
+				System.exit(0);
+				break;
+			default:
+				break;
+		}
 
 		input.update();
 	}
 
 	public void render(Graphics g)
 	{
-
+		switch (GameState.state)
+		{
+			case MENU:
+				menu.render(g);
+				break;
+			case PLAYING:
+				playing.render(g);
+				break;
+			default:
+				break;
+		}
 	}
 
 	@Override
@@ -118,6 +150,18 @@ public class Game implements Runnable
 		if (Game.gameInstance == null)
 			Game.gameInstance = new Game();
 		return Game.gameInstance;
+	}
+
+	public void windowLostFocus()
+	{
+		input.reset();
+		playing.windowLostFocus();
+	}
+
+	public void windowGainFocus()
+	{
+		if (GameState.state == GameState.MENU)
+			playing.windowGainFocus();
 	}
 
 	public Input getInput()

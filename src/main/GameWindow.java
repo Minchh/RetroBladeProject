@@ -2,6 +2,8 @@ package main;
 
 import javax.swing.JFrame;
 import java.awt.BorderLayout;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 
 public class GameWindow
 {
@@ -18,6 +20,17 @@ public class GameWindow
 		jframe.setLocationRelativeTo(null);
 		jframe.setResizable(false);
 		jframe.setVisible(true);
+		jframe.addWindowFocusListener(new WindowFocusListener() {
+			@Override
+			public void windowLostFocus(WindowEvent e) {
+				gamePanel.getGame().windowLostFocus();
+			}
+
+			@Override
+			public void windowGainedFocus(WindowEvent e) {
+				gamePanel.getGame().windowGainFocus();
+			}
+		});
 	}
 
 	public JFrame getJFrame()
