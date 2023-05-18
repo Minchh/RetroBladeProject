@@ -1,6 +1,7 @@
 package entities;
 
 import java.awt.Graphics;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -15,6 +16,8 @@ public class EnemyManager
 	private BufferedImage[][] slimeArr;
 	private ArrayList<Slime> slimes = new ArrayList<>();
 
+	private int count = 0;
+
 	public EnemyManager(Playing playing)
 	{
 		this.playing = playing;
@@ -22,9 +25,10 @@ public class EnemyManager
 		addEnemies();
 
 		for (Slime s : slimes)
-		{
-			s.setCurrentPlayer(playing.getPlayer());
-		}
+			if (s.isActived())
+			{
+				s.setCurrentPlayer(playing.getPlayer());
+			}
 	}
 
 	private void addEnemies()
@@ -40,9 +44,40 @@ public class EnemyManager
 	public void update()
 	{
 		for (Slime s : slimes)
+			if (s.isActived())
+			{
+				s.update();
+			}
+		if (isAllSlimesInactived())
+			playing.setGameOver(true);
+	}
+
+	private boolean isAllSlimesInactived()
+	{
+		int count = 0;
+		for (Slime s : slimes)
 		{
-			s.update();
+			if (!s.isActived())
+			{
+				count++;
+			}
 		}
+		if (count == slimes.size())
+			return true;
+		return false;
+	}
+
+	public void checkEnemyHit(Rectangle2D.Float attackBox)
+	{
+		for (Slime s : slimes)
+			if (s.isActived())
+			{
+				if (attackBox.intersects(s.getRect()))
+				{
+					s.hurt(10);
+					return;
+				}
+			}
 	}
 
 	public void render(Graphics g, int xLevelOffset)
@@ -53,13 +88,14 @@ public class EnemyManager
 	private void renderSlimes(Graphics g, int xLevelOffset)
 	{
 		for (Slime s : slimes)
-		{
-			g.drawImage(slimeArr[s.getEnemyState().ordinal()][s.getAniIndex()],
-					(int)s.getRect().x - (int)(6 * Game.SCALE * 1.5) + s.flipX - xLevelOffset,
-					(int)s.getRect().y - (int)(10 * Game.SCALE * 1.5),
-					(int)(SpriteConsts.SLIME.getSpriteWidth() * Game.SCALE * 1.5) * s.flipW, (int)(SpriteConsts.SLIME.getSpriteHeight() * Game.SCALE * 1.5), null);
-//			s.renderRect(g, xLevelOffset);
-		}
+			if (s.isActived())
+			{
+				g.drawImage(slimeArr[s.getEnemyState().ordinal()][s.getAniIndex()],
+						(int)s.getRect().x - (int)(6 * Game.SCALE * 1.5) + s.flipX - xLevelOffset,
+						(int)s.getRect().y - (int)(10 * Game.SCALE * 1.5),
+						(int)(SpriteConsts.SLIME.getSpriteWidth() * Game.SCALE * 1.5) * s.flipW, (int)(SpriteConsts.SLIME.getSpriteHeight() * Game.SCALE * 1.5), null);
+//				s.renderRect(g, xLevelOffset);
+			}
 	}
 
 	private void loadEnemyImgs()
@@ -72,5 +108,13 @@ public class EnemyManager
 						y * SpriteConsts.SLIME.getSpriteHeight(),
 						SpriteConsts.SLIME.getSpriteWidth(),
 						SpriteConsts.SLIME.getSpriteHeight());
+	}
+
+	public void resetAllEnemies()
+	{
+		for (Slime s : slimes)
+		{
+			s.resetEnemy();
+		}
 	}
 }

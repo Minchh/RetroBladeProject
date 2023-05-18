@@ -14,13 +14,15 @@ public abstract class Enemy extends Entity
 	private EnemyType enemyType;
 //	private boolean firstUpdate = true;
 
-	private boolean isAttacking, isOutOfBoundY, isOnGround;
+	private boolean isAttacking, isOutOfBoundY, isOnGround, isActived;
 	Vector2 direction;
 	private float gravity;
 	private Level currentLevel;
 	private float enemySpeed = 0.7f;
 	public int flipX, flipW;
 	private Player currentPlayer;
+	protected int maxHealth;
+	protected int currentHealth;
 
 	public Enemy(float x, float y, int width, int height, EnemyType enemyType)
 	{
@@ -29,6 +31,7 @@ public abstract class Enemy extends Entity
 
 		isOnGround = false;
 		isOutOfBoundY = false;
+		isActived = true;
 
 		// Movement
 		direction = new Vector2(1, 1);
@@ -38,6 +41,8 @@ public abstract class Enemy extends Entity
 		flipW = -1;
 
 		initRect(x, y, width, height);
+		maxHealth = 10;
+		currentHealth = maxHealth;
 	}
 
 	private void updateAnimationTick()
@@ -50,18 +55,25 @@ public abstract class Enemy extends Entity
 			if (aniIndex >= enemyState.getSpriteAmount())
 			{
 				aniIndex = 0;
-				if (isAttacking == true)
+				if (enemyState == EnemyState.ATTACK)
 				{
-					currentPlayer.changeHealth(-5);
+					currentPlayer.changeHealth(-20);
+					newState(EnemyState.IDLE);
+					isAttacking = false;
 				}
-				isAttacking = false;
+				else if (enemyState == EnemyState.DEATH)
+				{
+					isActived = false;
+				}
+
 			}
 		}
 	}
 
 	public void update()
 	{
-		readyForAttack();
+		if (!isAttacking)
+			readyForAttack();
 		updateState();
 		verticalMovementCollision();
 		updateAnimationTick();
@@ -161,10 +173,27 @@ public abstract class Enemy extends Entity
 
 	private void readyForAttack()
 	{
+
 		if (getRect().intersects(currentPlayer.getRect()))
 		{
-			enemyState = EnemyState.ATTACK;
+			newState(EnemyState.ATTACK);
 			isAttacking = true;
+		}
+	}
+
+	private void newState(EnemyState enemyState)
+	{
+		this.enemyState = enemyState;
+		aniTick = 0;
+		aniIndex = 0;
+	}
+
+	public void hurt(int amount)
+	{
+		currentHealth -= amount;
+		if (currentHealth <= 0)
+		{
+			newState(EnemyState.DEATH);
 		}
 	}
 
@@ -189,11 +218,6 @@ public abstract class Enemy extends Entity
 					updatePositionHorizontal();
 					break;
 				case ATTACK:
-					if (!isAttacking)
-					{
-						enemyState = EnemyState.IDLE;
-						resetAniTick();
-					}
 					break;
 				case DEATH:
 					break;
@@ -211,5 +235,23 @@ public abstract class Enemy extends Entity
 		return enemyState;
 	}
 
+	public boolean isActived()
+	{
+		return isActived;
+	}
 
+	public void setActived(boolean isActived)
+	{
+		this.isActived = isActived;
+	}
+
+	public void resetEnemy()
+	{
+		getRect().x = x;
+		getRect().y = y;
+		currentHealth = maxHealth;
+		newState(EnemyState.IDLE);
+		isActived = true;
+
+	}
 }

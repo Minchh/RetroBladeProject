@@ -6,7 +6,7 @@ import java.awt.geom.Rectangle2D;
 
 public abstract class Entity
 {
-	private float x, y;
+	protected float x, y;
 	private int width, height;
 	private Rectangle2D.Float rect;
 
