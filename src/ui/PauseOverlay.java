@@ -171,7 +171,7 @@ public class PauseOverlay
 				{
 					if (replayB.isMousePressed())
 					{
-						playing.getPlayer().resetPlayerPos();
+						playing.resetAll();
 						playing.unpauseGame();
 					}
 				}

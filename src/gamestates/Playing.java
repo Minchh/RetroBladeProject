@@ -2,6 +2,7 @@ package gamestates;
 
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import entities.EnemyManager;
@@ -9,6 +10,7 @@ import entities.Player;
 import inputs.Input;
 import level.LevelManager;
 import main.Game;
+import ui.GameOverOverlay;
 import ui.PauseOverlay;
 import utils.LoadSave;
 import utils.SpriteConsts;
@@ -29,9 +31,12 @@ public class Playing implements StateMethods {
 	private int maxTilesOffset = lvlTilesWide - Game.TILES_IN_WIDTH;
 	private int maxLvlOffsetX = maxTilesOffset * Game.TILE_WIDTH;
 
+	private boolean gameOver;
+	private GameOverOverlay gameOverOverlay;
 
 	public Playing(Input input)
 	{
+		gameOver = false;
 		this.input = input;
 		initClasses();
 	}
@@ -44,10 +49,11 @@ public class Playing implements StateMethods {
 		int startPosY = (int)(100 * Game.SCALE);
 		player = new Player(startPosX, startPosY,
 				(int)(SpriteConsts.PLAYER.getSpriteWidth() * Game.SCALE),
-				(int)(SpriteConsts.PLAYER.getSpriteHeight() * Game.SCALE), input);
+				(int)(SpriteConsts.PLAYER.getSpriteHeight() * Game.SCALE), input, this);
 		player.setCurrentLevel(lvlManager.getCurrentLevel());
 		enemyManager = new EnemyManager(this);
 		pauseOverlay = new PauseOverlay(this);
+		gameOverOverlay = new GameOverOverlay(this, input);
 
 		seaBackground = LoadSave.GetSpriteSheet(LoadSave.SEA_BACKGROUND);
 		cloudBackground = LoadSave.GetSpriteSheet(LoadSave.CLOUD_BACKGROUND);
@@ -60,10 +66,10 @@ public class Playing implements StateMethods {
 	public void update()
 	{
 		CheckEscapeButton();
-		if (!paused)
+		if (!paused && !gameOver)
 		{
 			lvlManager.update();
-			player.update();
+			player.update(gameOver);
 			enemyManager.update();
 			checkCloseBorder();
 		}
@@ -104,13 +110,22 @@ public class Playing implements StateMethods {
 		{
 			pauseOverlay.render(g);
 		}
+		else if (gameOver)
+		{
+			gameOverOverlay.render(g);
+		}
 	}
 
 	private void CheckEscapeButton()
 	{
 		if (input.isKeyDown(KeyEvent.VK_ESCAPE))
 		{
-			paused = !paused;
+			if (gameOver)
+				gameOverOverlay.checkKeyPressed();
+			else
+			{
+				paused = !paused;
+			}
 		}
 	}
 
@@ -176,6 +191,16 @@ public class Playing implements StateMethods {
 
 	}
 
+	public void checkEnemyHit(Rectangle2D.Float attackBox)
+	{
+		enemyManager.checkEnemyHit(attackBox);
+	}
+
+	public void setGameOver(boolean gameOver)
+	{
+		this.gameOver = gameOver;
+	}
+
 	public void unpauseGame()
 	{
 		paused = false;
@@ -206,5 +231,14 @@ public class Playing implements StateMethods {
 	public Player getPlayer()
 	{
 		return player;
+	}
+
+	public void resetAll()
+	{
+		// TODO: reset playing, enemy, etc,...
+		gameOver = false;
+		paused = false;
+		player.resetAll();
+		enemyManager.resetAllEnemies();
 	}
 }

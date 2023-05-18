@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
+import gamestates.Playing;
 import inputs.Input;
 import level.Level;
 import level.Tile;
@@ -54,9 +55,13 @@ public class Player extends Entity {
 	// AttackBox
 	private Rectangle2D.Float attackBox;
 
-	public Player(float x, float y, int width, int height, Input input) {
+	private boolean attackChecked;
+	private Playing playing;
+
+	public Player(float x, float y, int width, int height, Input input, Playing playing) {
 		super(x, y, width, height);
 
+		this.playing = playing;
 		this.input = input;
 
 		playerAction = PlayerState.IDLE;
@@ -65,6 +70,7 @@ public class Player extends Entity {
 		isOnGround = false;
 		isOutOfBoundX = false;
 		isOutOfBoundY = false;
+		attackChecked = false;
 
 		// Movement
 		direction = new Vector2(1, 1);
@@ -88,19 +94,31 @@ public class Player extends Entity {
 
 
 
-	public void update()
+	public void update(boolean gameOver)
 	{
-		updateHealthBar();
-		updateAttackBox();
+		if (!gameOver)
+		{
+			updateHealthBar();
 
-		updateDirections();
-		updateAttacking();
+			if (currentHealth <= 0)
+			{
+				playing.setGameOver(true);
+				return;
+			}
 
-		horizontalMovementCollision();
-		verticalMovementCollision();
+			updateAttackBox();
 
-		updateAnimationTick();
-		setAnimations();
+			updateDirections();
+			updateAttacking();
+
+			horizontalMovementCollision();
+			verticalMovementCollision();
+			if (isAttacking)
+				checkAttack();
+			updateAnimationTick();
+			setAnimations();
+		}
+
 	}
 
 	private void updateAttackBox()
@@ -172,6 +190,7 @@ public class Player extends Entity {
 			{
 				aniIndex = 0;
 				isAttacking = false;
+				attackChecked = false;
 			}
 		}
 	}
@@ -295,7 +314,7 @@ public class Player extends Entity {
 
 		if (isOutOfBoundY)
 		{
-			resetPlayerPos();
+			playing.setGameOver(true);
 			return;
 		}
 
@@ -346,7 +365,6 @@ public class Player extends Entity {
 		if (currentHealth <= 0)
 		{
 			currentHealth = 0;
-			// Game Over
 		}
 		else if (currentHealth >= maxHealth)
 		{
@@ -385,5 +403,29 @@ public class Player extends Entity {
 		getRect().y = 100 * Game.SCALE;
 		direction.setX(0);
 		direction.setY(0);
+	}
+
+	private void checkAttack()
+	{
+		if (attackChecked || aniIndex != 1)
+			return;
+		attackChecked = true;
+		playing.checkEnemyHit(attackBox);
+	}
+
+	public Rectangle2D.Float getAttackBox()
+	{
+		return attackBox;
+	}
+
+	public void resetAll()
+	{
+		resetPlayerPos();
+		isAttacking = false;
+		isOnGround = false;
+		isMoving = false;
+		playerAction = PlayerState.IDLE;
+		currentHealth = maxHealth;
+
 	}
 }
