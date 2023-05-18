@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="RetroBlade:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/RetroBlade_jar</output-path>
+    <root id="archive" name="RetroBlade.jar">
+      <element id="module-output" name="RetroBlade" />
+    </root>
+  </artifact>
+</component>
