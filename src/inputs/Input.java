@@ -1,3 +1,13 @@
+/*
+Name: Group 11
+Member names & IU code:
+	- Đỗ Nguyễn Bình Minh - ITCSIU21201
+	- Trần Thanh Hiếu - ITCSIU21179
+	- Hồ Anh Dũng - ITCSIU21172
+Purpose: This class helps us transmit all keyboard and mouse to the game, to help us control our player and
+			interact with the menu.
+ */
+
 package inputs;
 
 import java.awt.event.KeyEvent;

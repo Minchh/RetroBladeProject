@@ -1,3 +1,12 @@
+/*
+Name: Group 11
+Member names & IU code:
+	- Đỗ Nguyễn Bình Minh - ITCSIU21201
+	- Trần Thanh Hiếu - ITCSIU21179
+	- Hồ Anh Dũng - ITCSIU21172
+Purpose: The main component of the game, it contains all the game structure.
+ */
+
 package main;
 
 import gamestates.GameState;
