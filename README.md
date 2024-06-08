@@ -1,6 +1,6 @@
 # School Final Project
-## Game: Retro Blade
-
+## Game: Retro Blade (Demo)
+A basic platformer game programmed in Java, using Java Swing and AWT.
 
 ### Group Members
 
